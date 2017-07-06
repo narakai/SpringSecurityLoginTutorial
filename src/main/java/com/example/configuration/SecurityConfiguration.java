@@ -17,18 +17,23 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+	//password encoder reference implemented in WebMvcConfig.java
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+	//data source implemented out of the box by Spring Boot.
+    //We only need to provide the database information in the application.properties file.
 	@Autowired
 	private DataSource dataSource;
-	
+
+	//Reference to user and role queries stored in application.properties file
 	@Value("${spring.queries.users-query}")
 	private String usersQuery;
 	
 	@Value("${spring.queries.roles-query}")
 	private String rolesQuery;
 
+	//AuthenticationManagerBuilder provides a mechanism to get a user based on the password encoder, data source, user query and role query.
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth)
 			throws Exception {
@@ -40,6 +45,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.passwordEncoder(bCryptPasswordEncoder);
 	}
 
+	//Here we define the antMatchers to provide access based on the role(s) (lines 48 to 51),
+    //the parameters for the login process (lines 55 to 56), the success login page(line 53),
+    //the failure login page(line 53), and the logout page (line 58).
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		
@@ -59,7 +67,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.logoutSuccessUrl("/").and().exceptionHandling()
 				.accessDeniedPage("/access-denied");
 	}
-	
+
+	//Due we have implemented Spring Security we need to let Spring knows that
+    //our resources folder can be served skipping the antMatchers defined
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 	    web
